@@ -1,0 +1,43 @@
+resources:
+- name: docker-slack-notification
+  type: docker-images
+  source:
+    repository: cfcommunity/slack-notification-resource
+
+
+- name: git-slack-notification
+  type: git
+  source:
+    branch: master
+    uri:  https://github.com/cloudfoundry-community/slack-notification-resource.git
+
+
+
+
+- name: custom-res-concourse-boshrelease
+  type: git
+  source:
+    branch: develop
+    private_key: {{private-key-github-concourse}}
+    uri: git@github.com:Pivotal-Japan/firehose-to-fluentd.git
+
+
+
+jobs:
+- name: bump-slack-resource
+  serial: true
+  plan:
+  - get: docker-slack-notification
+    params: {rootfs: true}
+    trigger: true
+  - get: custom-res-concourse-boshrelease
+  - task: bump-package
+    input_mapping:
+      resource-image: docker-slack-notification
+      resource-repo: git-slack-notification
+    file: custom-res-concourse-boshrelease/ci/task/bump-resource-package.yml
+    params:
+      RESOURCE_NAME: slack-resource
+      BOSH_PRIVATE_CONFIG: ((concourse_release_private_config))
+  - put: custom-res-concourse-boshrelease
+    params: {repository: bumped-custom-res-concourse-boshrelease, rebase: true}

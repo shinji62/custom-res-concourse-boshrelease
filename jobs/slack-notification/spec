@@ -1,0 +1,9 @@
+---
+name: slack-notification
+
+templates: {}
+
+packages:
+- slack-resource
+
+properties: {}
