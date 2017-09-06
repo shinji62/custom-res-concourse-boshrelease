@@ -12,14 +12,41 @@ resources:
     uri:  https://github.com/cloudfoundry-community/slack-notification-resource.git
 
 
+- name: custom-res-concourse-boshrelease-dev
+  type: git
+  source:
+    branch: develop
+    private_key: {{private-key-github-concourse}}
+    uri: git@github.com:shinji62/custom-res-concourse-boshrelease.git
+
+
 
 
 - name: custom-res-concourse-boshrelease
   type: git
   source:
-    branch: develop
+    branch: master
     private_key: {{private-key-github-concourse}}
-    uri: git@github.com:Pivotal-Japan/firehose-to-fluentd.git
+    uri: git@github.com:shinji62/custom-res-concourse-boshrelease.git
+
+
+
+- name: gh-release
+  type: github-release
+  source:
+    user: shinji62
+    repository: custom-res-concourse-boshrelease
+    access_token: {{github-access-token}}
+
+- name: version
+  type: semver
+  source:
+    driver: git
+    uri: git@github.com:shinji62/custom-res-concourse-boshrelease.git
+    branch: version
+    file: version
+    private_key: {{private-key-github-concourse}}
+    git_user: {{concourse-user-gitinfo}}
 
 
 
@@ -41,3 +68,52 @@ jobs:
       BOSH_PRIVATE_CONFIG: ((concourse_release_private_config))
   - put: custom-res-concourse-boshrelease
     params: {repository: bumped-custom-res-concourse-boshrelease, rebase: true}
+
+
+- name: minor
+  plan:
+  - do:
+    - { get: version, trigger: false, params: {bump: minor} }
+    - { put: version,                 params: {file: version/number} }
+
+- name: major
+  plan:
+  - do:
+    - { get: version, trigger: false, params: {bump: major} }
+    - { put: version,                 params: {file: version/number} }
+
+
+
+
+- name: shipit
+  plan:
+  - get: custom-res-concourse-boshrelease
+  - get: version
+  - task: finalize-bosh-release
+    file: custom-res-concourse-boshrelease/ci/finalize-release
+  - put: gh-release
+    params :
+      name: version/number
+      tag: version/number
+      globs:
+      - final-release-tarball/*
+
+
+
+- name: downstream-master
+  serial: true
+  plan:
+  - aggregate:
+    - get: firehose-to-syslog-ci
+      resource: firehose-to-syslog-develop
+    - get: release-repo-master
+      resource: custom-res-concourse-boshrelease
+      trigger: true
+      passed: [shipit]
+    - get: release-repo
+      resource:  custom-res-concourse-boshrelease-dev
+  - task: merge-master-to-develop
+    file: custom-res-concourse-boshrelease/ci/task/merge-master-to-develop.yml
+    params:
+      GIT_USERNAME: {{github-username}}
+      GIT_EMAIL:  {{github-email}}
