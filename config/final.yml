@@ -1,4 +1,5 @@
 ---
+final_name: custom-res-concourse-boshrelease
 blobstore:
   provider: s3
   options:

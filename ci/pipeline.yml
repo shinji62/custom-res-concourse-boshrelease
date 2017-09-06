@@ -57,16 +57,18 @@ jobs:
   - get: docker-slack-notification
     params: {rootfs: true}
     trigger: true
-  - get: custom-res-concourse-boshrelease
+  - get: custom-res-concourse-boshrelease-dev
+  - get: git-slack-notification
   - task: bump-package
     input_mapping:
+      custom-res-concourse-boshrelease:  custom-res-concourse-boshrelease-dev
       resource-image: docker-slack-notification
       resource-repo: git-slack-notification
     file: custom-res-concourse-boshrelease/ci/task/bump-resource-package.yml
     params:
       RESOURCE_NAME: slack-resource
-      BOSH_PRIVATE_CONFIG: ((concourse_release_private_config))
-  - put: custom-res-concourse-boshrelease
+      BOSH_PRIVATE_CONFIG: {{custom_rest_release_private_config}}
+  - put: custom-res-concourse-boshrelease-dev
     params: {repository: bumped-custom-res-concourse-boshrelease, rebase: true}
 
 
@@ -90,7 +92,7 @@ jobs:
   - get: custom-res-concourse-boshrelease
   - get: version
   - task: finalize-bosh-release
-    file: custom-res-concourse-boshrelease/ci/finalize-release
+    file: custom-res-concourse-boshrelease/ci/tasks/finalize-release.yml
   - put: gh-release
     params :
       name: version/number
@@ -104,8 +106,7 @@ jobs:
   serial: true
   plan:
   - aggregate:
-    - get: firehose-to-syslog-ci
-      resource: firehose-to-syslog-develop
+    - get: custom-res-concourse-boshrelease
     - get: release-repo-master
       resource: custom-res-concourse-boshrelease
       trigger: true
