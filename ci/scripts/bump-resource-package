@@ -26,8 +26,8 @@ cd bumped-custom-res-concourse-boshrelease/
 # into release dir, which is invalid cross-device link
 export HOME=$PWD
 
-git config --global user.email "ci@localhost"
-git config --global user.name "CI Bot"
+git config --global user.email "$GIT_EMAIL"
+git config --global user.name "$GIT_USERNAME"
 
 bosh blobs --column="path"  | grep "resources/${RESOURCE_NAME}" | xargs bosh remove-blob
 

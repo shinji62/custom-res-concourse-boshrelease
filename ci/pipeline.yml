@@ -68,6 +68,8 @@ jobs:
     params:
       RESOURCE_NAME: slack-resource
       BOSH_PRIVATE_CONFIG: {{custom_rest_release_private_config}}
+      GIT_USERNAME: {{github-username}}
+      GIT_EMAIL:  {{github-email}}
   - put: custom-res-concourse-boshrelease-dev
     params: {repository: bumped-custom-res-concourse-boshrelease, rebase: true}
 
@@ -93,6 +95,9 @@ jobs:
   - get: version
   - task: finalize-bosh-release
     file: custom-res-concourse-boshrelease/ci/tasks/finalize-release.yml
+    params:
+      GIT_USERNAME: {{github-username}}
+      GIT_EMAIL:  {{github-email}}
   - put: gh-release
     params :
       name: version/number
@@ -114,7 +119,7 @@ jobs:
     - get: release-repo
       resource:  custom-res-concourse-boshrelease-dev
   - task: merge-master-to-develop
-    file: custom-res-concourse-boshrelease/ci/task/merge-master-to-develop.yml
+    file: custom-res-concourse-boshrelease/ci/tasks/merge-master-to-develop.yml
     params:
       GIT_USERNAME: {{github-username}}
       GIT_EMAIL:  {{github-email}}
