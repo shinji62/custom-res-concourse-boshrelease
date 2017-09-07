@@ -98,6 +98,11 @@ jobs:
     params:
       GIT_USERNAME: {{github-username}}
       GIT_EMAIL:  {{github-email}}
+      BOSH_PRIVATE_CONFIG: {{custom_rest_release_private_config}}
+  - put: custom-res-concourse-boshrelease
+    params:
+      repository: final-release-repo
+      rebase: true
   - put: gh-release
     params :
       name: version/number
@@ -123,3 +128,7 @@ jobs:
     params:
       GIT_USERNAME: {{github-username}}
       GIT_EMAIL:  {{github-email}}
+  - put: custom-res-concourse-boshrelease-dev
+    params:
+      repository: final-release-repo
+      rebase: true
