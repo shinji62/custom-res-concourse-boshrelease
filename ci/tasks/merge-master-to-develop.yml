@@ -15,7 +15,7 @@ outputs:
   - name: final-release-repo
 
 run:
-  path: fcustom-res-concourse-boshrelease/ci/scripts/merge-master-to-develop
+  path: custom-res-concourse-boshrelease/ci/scripts/merge-master-to-develop
 
 params:
   MASTER_BRANCH:
