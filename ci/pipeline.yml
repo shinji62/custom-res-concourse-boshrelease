@@ -1,6 +1,6 @@
 resources:
 - name: docker-slack-notification
-  type: docker-images
+  type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
 
