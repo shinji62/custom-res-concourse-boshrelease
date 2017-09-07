@@ -54,17 +54,16 @@ jobs:
 - name: bump-slack-resource
   serial: true
   plan:
-  - get: docker-slack-notification
+  - get: resource-image
+    resource: docker-slack-notification
     params: {rootfs: true}
     trigger: true
-  - get: custom-res-concourse-boshrelease-dev
-  - get: git-slack-notification
+  - get: custom-res-concourse-boshrelease
+    resource: custom-res-concourse-boshrelease-dev
+  - get: resource-repo
+    resource: git-slack-notification
   - task: bump-package
-    input_mapping:
-      custom-res-concourse-boshrelease:  custom-res-concourse-boshrelease-dev
-      resource-image: docker-slack-notification
-      resource-repo: git-slack-notification
-    file: custom-res-concourse-boshrelease/ci/task/bump-resource-package.yml
+    file: custom-res-concourse-boshrelease/ci/tasks/bump-resource-package.yml
     params:
       RESOURCE_NAME: slack-resource
       BOSH_PRIVATE_CONFIG: {{custom_rest_release_private_config}}
