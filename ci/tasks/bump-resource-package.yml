@@ -19,4 +19,4 @@ params:
   BOSH_PRIVATE_CONFIG:
 
 run:
-  path: bumped-custom-res-concourse-boshrelease/ci/scripts/bump-resource-package
+  path: custom-res-concourse-boshrelease/ci/scripts/bump-resource-package
