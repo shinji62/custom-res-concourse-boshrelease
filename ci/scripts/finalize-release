@@ -1,11 +1,14 @@
 #!/bin/bash
 # vim: set ft=sh
 
-set -e -x
+set -e
 
 FINAL_RELEASE_TARBALL=$PWD/final-release-tarball
 FINAL_RELEASE_REPO=$PWD/final-release-repo
 
+echo "$BOSH_PRIVATE_CONFIG" > $FINAL_RELEASE_REPO/config/private.yml
+
+set -x
 
 VERSION=$(cat ./version/number)
 if [ -z "$VERSION" ]; then
@@ -15,7 +18,6 @@ fi
 
 git clone ./custom-res-concourse-boshrelease $FINAL_RELEASE_REPO
 
-echo "$BOSH_PRIVATE_CONFIG" > $FINAL_RELEASE_REPO/config/private.yml
 
 cd $FINAL_RELEASE_REPO
 
